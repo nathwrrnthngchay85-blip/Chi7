@@ -1,0 +1,267 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight, RotateCcw, Volume2, VolumeX, Eye } from 'lucide-react';
+
+const vocabList = [
+  { id: 1, word: '大方', pinyin: 'dàfang', type: '形', thai: 'ใจกว้าง, สง่าผ่าเผย', english: 'generous' },
+  { id: 2, word: '期间', pinyin: 'qījiān', type: '名', thai: 'ช่วงเวลา', english: 'period' },
+  { id: 3, word: '邀请', pinyin: 'yāoqǐng', type: '动', thai: 'เชิญ, เชื้อเชิญ', english: 'invite' },
+  { id: 4, word: '新郎', pinyin: 'xīnláng', type: '名', thai: 'เจ้าบ่าว', english: 'bridegroom' },
+  { id: 5, word: '新娘', pinyin: 'xīnniáng', type: '名', thai: 'เจ้าสาว', english: 'bride' },
+  { id: 6, word: '敬酒', pinyin: 'jìng jiǔ', type: '动', thai: 'ดื่มอวยพร, ชนแก้ว', english: 'propose a toast' },
+  { id: 7, word: '贺卡', pinyin: 'hèkǎ', type: '名', thai: 'การ์ดอวยพร', english: 'greeting card' },
+  { id: 8, word: '神秘', pinyin: 'shénmì', type: '形', thai: 'ลึกลับ', english: 'mysterious' },
+  { id: 9, word: '护身符', pinyin: 'hùshēnfú', type: '名', thai: 'เครื่องราง, ของขลัง', english: 'amulet' },
+  { id: 10, word: '说明', pinyin: 'shuōmíng', type: '动', thai: 'อธิบาย, แสดงให้เห็น', english: 'show; indicate' },
+  { id: 11, word: '反正', pinyin: 'fǎnzhèng', type: '副', thai: 'ถึงอย่างไรก็...', english: 'anyway; anyhow' },
+  { id: 12, word: '掏', pinyin: 'tāo', type: '动', thai: 'ล้วง, หยิบออกมา', english: 'draw out' },
+  { id: 13, word: '塞', pinyin: 'sāi', type: '动', thai: 'ยัด, อุด', english: 'stuff into' },
+  { id: 14, word: '穷鬼', pinyin: 'qióng guǐ', type: '名', thai: 'คนจน (คำดูถูก)', english: 'the poor' },
+  { id: 15, word: '物价', pinyin: 'wùjià', type: '名', thai: 'ราคาสินค้า', english: 'price of commodities' },
+  { id: 16, word: '惊喜', pinyin: 'jīngxǐ', type: '形', thai: 'ประหลาดใจและดีใจ (เซอร์ไพรส์)', english: 'pleasant surprise' },
+  { id: 17, word: '轻松', pinyin: 'qīngsōng', type: '形', thai: 'ผ่อนคลาย, สบายๆ', english: 'relaxed' },
+  { id: 18, word: '待', pinyin: 'dāi', type: '动', thai: 'พัก, อาศัยอยู่', english: 'stay' },
+  { id: 19, word: '似乎', pinyin: 'sìhū', type: '副', thai: 'ดูเหมือนว่า', english: 'as if; it seems' },
+  { id: 20, word: '在乎', pinyin: 'zàihu', type: '动', thai: 'แคร์, ใส่ใจ', english: 'care about' },
+  { id: 21, word: '面子', pinyin: 'miànzi', type: '名', thai: 'หน้าตา, ศักดิ์ศรี', english: 'face; reputation' },
+  { id: 22, word: '偶尔', pinyin: 'ǒu\'ěr', type: '副', thai: 'เป็นบางครั้งบางคราว', english: 'occasionally' },
+  { id: 23, word: '环境', pinyin: 'huánjìng', type: '名', thai: 'สภาพแวดล้อม', english: 'surroundings; environment' },
+  { id: 24, word: '优雅', pinyin: 'yōuyǎ', type: '形', thai: 'สง่างาม, ประณีต', english: 'elegant' },
+  { id: 25, word: '抢', pinyin: 'qiǎng', type: '动', thai: 'แย่งชิง', english: 'try to be the first' },
+  { id: 26, word: '撕', pinyin: 'sī', type: '动', thai: 'ฉีก', english: 'tear; rip' },
+  { id: 27, word: '价签', pinyin: 'jiàqiān', type: '名', thai: 'ป้ายราคา', english: 'price tag' },
+  { id: 28, word: '花招', pinyin: 'huāzhāo', type: '名', thai: 'ลูกเล่น, เล่ห์เหลี่ยม', english: 'trick' },
+  { id: 29, word: '马虎', pinyin: 'mǎhu', type: '形', thai: 'สะเพร่า, ลวกๆ', english: 'careless' },
+  { id: 30, word: '传统', pinyin: 'chuántǒng', type: '名', thai: 'ประเพณี, ธรรมเนียมดั้งเดิม', english: 'tradition' },
+  { id: 31, word: '评价', pinyin: 'píngjià', type: '动', thai: 'ประเมิน, วิจารณ์', english: 'evaluate; assess' },
+  { id: 32, word: '就算', pinyin: 'jiùsuàn', type: '连', thai: 'ถึงแม้ว่า', english: 'even if' },
+  { id: 33, word: '能力', pinyin: 'nénglì', type: '名', thai: 'ความสามารถ', english: 'ability' },
+  { id: 34, word: '强', pinyin: 'qiáng', type: '形', thai: 'แข็งแกร่ง, เก่ง', english: 'strong' },
+  { id: 35, word: '人均', pinyin: 'rénjūn', type: '名/动', thai: 'เฉลี่ยต่อคน', english: 'per capita' },
+  { id: 36, word: '收入', pinyin: 'shōurù', type: '名', thai: 'รายได้', english: 'income' },
+  { id: 37, word: '理想', pinyin: 'lǐxiǎng', type: '形', thai: 'อุดมคติ', english: 'ideal' },
+  { id: 38, word: '场所', pinyin: 'chǎngsuǒ', type: '名', thai: 'สถานที่', english: 'place; venue' },
+  { id: 39, word: '自然', pinyin: 'zìrán', type: '形', thai: 'ธรรมชาติ', english: 'natural' },
+  { id: 40, word: '富', pinyin: 'fù', type: '形', thai: 'ร่ำรวย', english: 'rich; wealthy' },
+  { id: 41, word: '捐', pinyin: 'juān', type: '动', thai: 'บริจาค', english: 'donate' },
+  { id: 42, word: '观念', pinyin: 'guānniàn', type: '名', thai: 'ค่านิยม, แนวความคิด', english: 'concept' },
+  { id: 43, word: '办学', pinyin: 'bànxué', type: '动', thai: 'บริหาร/จัดตั้งโรงเรียน', english: 'run a school' },
+  { id: 44, word: '追求', pinyin: 'zhuīqiú', type: '动', thai: 'แสวงหา', english: 'pursue' },
+  { id: 45, word: '要不然', pinyin: 'yàoburán', type: '连', thai: 'มิฉะนั้น', english: 'otherwise' },
+];
+
+export default function App() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [speechAvailable, setSpeechAvailable] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const synthRef = useRef(window.speechSynthesis);
+  const [chineseVoice, setChineseVoice] = useState(null);
+
+  const currentWord = vocabList[currentIndex];
+
+  // Initialize speech synthesis and find a Chinese voice
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) {
+      setSpeechAvailable(false);
+      return;
+    }
+
+    const loadVoices = () => {
+      const voices = synthRef.current.getVoices();
+      // Try to find a Mandarin Chinese voice (zh-CN or zh-TW or just zh)
+      const voice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn')) || null;
+      setChineseVoice(voice);
+    };
+
+    loadVoices();
+    // Chrome sometimes loads voices asynchronously
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
+  const speakWord = (e) => {
+    // Prevent flipping the card when clicking the speaker button
+    if (e) e.stopPropagation();
+    
+    if (!speechAvailable || isSpeaking) return;
+
+    // Cancel any ongoing speech
+    synthRef.current.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(currentWord.word);
+    if (chineseVoice) {
+      utterance.voice = chineseVoice;
+    }
+    // Set language as fallback if specific voice isn't found
+    utterance.lang = 'zh-CN'; 
+    utterance.rate = 0.8; // Slightly slower for dictation
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    synthRef.current.speak(utterance);
+  };
+
+  const handleNext = () => {
+    setIsFlipped(false);
+    synthRef.current.cancel();
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % vocabList.length);
+    }, 150);
+  };
+
+  const handlePrev = () => {
+    setIsFlipped(false);
+    synthRef.current.cancel();
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + vocabList.length) % vocabList.length);
+    }, 150);
+  };
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 font-sans text-slate-100">
+      
+      {/* Header */}
+      <div className="mb-8 text-center mt-4">
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-wide">
+          听写练习
+        </h1>
+        <p className="text-slate-400 font-medium text-sm md:text-base bg-slate-800/50 px-4 py-1.5 rounded-full inline-block">
+          发展汉语中级 1 - บทที่ 7
+        </p>
+      </div>
+
+      {/* Progress Counter */}
+      <div className="bg-emerald-500/10 border border-emerald-500/20 px-5 py-2 rounded-full mb-8 shadow-sm">
+        <p className="text-sm font-medium text-emerald-400 tracking-wider">
+          คำที่ <span className="font-bold text-emerald-300">{currentIndex + 1}</span> / {vocabList.length}
+        </p>
+      </div>
+
+      {/* Flashcard Container */}
+      <div 
+        className="relative w-full max-w-sm h-96 md:h-[26rem] cursor-pointer group perspective-1000 mb-8"
+        onClick={handleFlip}
+      >
+        <div 
+          className={`w-full h-full transition-transform duration-700 ease-in-out preserve-3d relative ${isFlipped ? 'rotate-y-180' : ''}`}
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          {/* Front of Card (Tingxie Mode - Audio Only) */}
+          <div 
+            className="absolute w-full h-full backface-hidden bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 flex flex-col items-center justify-center p-8 text-center"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            <span className="text-slate-500 text-sm font-medium absolute top-6 left-6">No. {currentWord.id}</span>
+            
+            <div className="flex-1 flex flex-col items-center justify-center w-full">
+              {!speechAvailable ? (
+                <div className="text-amber-400 flex flex-col items-center gap-2">
+                  <VolumeX size={48} />
+                  <p className="text-sm">เบราว์เซอร์ไม่รองรับเสียงอ่าน</p>
+                </div>
+              ) : (
+                <button
+                  onClick={speakWord}
+                  disabled={isSpeaking}
+                  className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    isSpeaking 
+                      ? 'bg-emerald-500/20 text-emerald-400 scale-110 shadow-[0_0_30px_rgba(16,185,129,0.3)]' 
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:scale-105 hover:text-white shadow-xl'
+                  }`}
+                  aria-label="Play audio"
+                >
+                  <Volume2 size={64} className={isSpeaking ? 'animate-pulse' : ''} />
+                </button>
+              )}
+              <p className="text-slate-400 mt-8 text-lg font-medium">กดเพื่อฟังเสียง</p>
+            </div>
+
+            <p className="text-xs text-slate-500 absolute bottom-6 flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-full">
+              <Eye size={14} /> แตะการ์ดเพื่อดูเฉลย
+            </p>
+          </div>
+
+          {/* Back of Card (Answers) */}
+          <div 
+            className="absolute w-full h-full backface-hidden bg-emerald-600 rounded-3xl shadow-2xl border border-emerald-500 flex flex-col items-center justify-center p-8 text-center rotate-y-180 text-white"
+            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+          >
+            <span className="text-emerald-200/60 text-sm font-medium absolute top-6 left-6">No. {currentWord.id}</span>
+            
+            <div className="bg-emerald-900/30 px-3 py-1 rounded-md text-xs font-semibold mb-4 tracking-widest border border-emerald-400/20">
+              ชนิดคำ: {currentWord.type}
+            </div>
+            
+            <div className="text-6xl md:text-7xl font-medium text-white mb-2 tracking-wider">
+              {currentWord.word}
+            </div>
+            
+            <div className="text-2xl md:text-3xl text-emerald-200 font-medium tracking-widest mb-6">
+              {currentWord.pinyin}
+            </div>
+            
+            <div className="w-full h-px bg-emerald-400/30 mb-6"></div>
+            
+            <div className="text-xl md:text-2xl font-bold mb-3 leading-tight text-white drop-shadow-md">
+              {currentWord.thai}
+            </div>
+            
+            <div className="text-emerald-100 text-sm md:text-base font-medium">
+              {currentWord.english}
+            </div>
+
+            <p className="text-xs text-emerald-200/70 absolute bottom-6 flex items-center gap-2">
+              <RotateCcw size={14} /> แตะเพื่อกลับไปฟังเสียง
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center gap-8">
+        <button 
+          onClick={handlePrev}
+          className="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all active:scale-95 shadow-lg"
+          aria-label="Previous card"
+        >
+          <ChevronLeft size={28} strokeWidth={2.5} />
+        </button>
+
+        <button 
+          onClick={(e) => {
+             // Play sound automatically on next if desired, but here we just flip it back
+             handleNext();
+          }}
+          className="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all active:scale-95 shadow-lg"
+          aria-label="Next card"
+        >
+          <ChevronRight size={28} strokeWidth={2.5} />
+        </button>
+      </div>
+
+      {}
+      <style dangerouslySetInnerHTML={{__html: `
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .preserve-3d {
+          transform-style: preserve-3d;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}} />
+    </div>
+  );
+}
